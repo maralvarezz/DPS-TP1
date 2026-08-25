@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.exception;
 
 /**
  * The exchange rate provider could not be reached at all: no HTTP response was obtained

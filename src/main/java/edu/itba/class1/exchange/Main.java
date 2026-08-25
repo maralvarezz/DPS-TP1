@@ -1,5 +1,11 @@
 package edu.itba.class1.exchange;
 
+import edu.itba.class1.exchange.exception.CurrencyExchangeException;
+import edu.itba.class1.exchange.model.ConversionResult;
+import edu.itba.class1.exchange.model.ExchangeRate;
+import edu.itba.class1.exchange.model.MoneyAmount;
+import edu.itba.class1.exchange.provider.FreeCurrencyApiExchangeRateProvider;
+
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.List;

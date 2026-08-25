@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.exception;
 
 /**
  * The exchange rate provider answered, but with an error (e.g. HTTP 404, 401, 429 or 500),

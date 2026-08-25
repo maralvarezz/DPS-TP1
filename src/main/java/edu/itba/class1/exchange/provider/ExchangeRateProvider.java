@@ -1,4 +1,6 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.provider;
+
+import edu.itba.class1.exchange.CurrencyConverter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

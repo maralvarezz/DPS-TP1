@@ -1,10 +1,14 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.provider;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequest;
+
+import edu.itba.class1.exchange.CurrencyConverter;
+import edu.itba.class1.exchange.exception.CurrencyExchangeApiException;
+import edu.itba.class1.exchange.exception.CurrencyExchangeConnectionException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

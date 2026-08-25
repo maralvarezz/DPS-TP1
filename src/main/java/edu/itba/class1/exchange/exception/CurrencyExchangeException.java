@@ -1,4 +1,6 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.exception;
+
+import edu.itba.class1.exchange.model.MoneyAmount;
 
 /**
  * Base type for every error the currency exchange business logic can raise. Callers are

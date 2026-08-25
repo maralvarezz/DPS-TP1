@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.provider;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.mashape.unirest.http.Unirest;
@@ -6,6 +6,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import edu.itba.class1.exchange.exception.CurrencyExchangeApiException;
+import edu.itba.class1.exchange.exception.CurrencyExchangeConnectionException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
