@@ -8,6 +8,11 @@ public record MoneyAmount(BigDecimal amount) {
 
 	public MoneyAmount {
 		amount = Objects.requireNonNull(amount, "amount must not be null").stripTrailingZeros();
+		if (amount.scale() < 0) {
+			// stripTrailingZeros() gives round numbers a negative scale (e.g. 100 -> "1E+2"),
+			// which prints in scientific notation; clamp back to a plain, zero-scale integer.
+			amount = amount.setScale(0);
+		}
 	}
 
 	public MoneyAmount(final double amount) {

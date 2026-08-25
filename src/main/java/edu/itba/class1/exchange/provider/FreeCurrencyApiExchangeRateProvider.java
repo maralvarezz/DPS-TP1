@@ -46,6 +46,7 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 	public List<Currency> listSupportedCurrencies() {
 		final String body = get(apiBaseUrl + "/currencies", Map.of());
 		final CurrenciesResponse response = parse(body, CurrenciesResponse.class);
+		requireData(response.data);
 		return response.data.keySet().stream()
 				.map(this::toJavaCurrencyOrNull)
 				.filter(Objects::nonNull)
@@ -56,6 +57,7 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 	public Map<Currency, BigDecimal> getExchangeRates(final Currency fromCurrency, final List<Currency> toCurrencies) {
 		final String body = get(apiBaseUrl + "/latest", queryParams(fromCurrency, toCurrencies));
 		final RatesResponse response = parse(body, RatesResponse.class);
+		requireData(response.data);
 		return toJavaCurrencyRates(response.data);
 	}
 
@@ -68,6 +70,7 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 
 		final String body = get(apiBaseUrl + "/historical", params);
 		final HistoricalRatesResponse response = parse(body, HistoricalRatesResponse.class);
+		requireData(response.data);
 		final Map<String, BigDecimal> ratesForDate = response.data.getOrDefault(date.toString(), Map.of());
 		return toJavaCurrencyRates(ratesForDate);
 	}
@@ -144,6 +147,13 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 				: "The currency exchange API returned HTTP " + statusCode + ".";
 		final String errorCode = errorResponse != null && errorResponse.error != null ? errorResponse.error.code : null;
 		return new CurrencyExchangeApiException(statusCode, errorCode, message);
+	}
+
+	private void requireData(final Object data) {
+		if (data == null) {
+			throw new CurrencyExchangeApiException(200, "empty_response",
+					"The currency exchange API returned a response without a \"data\" field.");
+		}
 	}
 
 	private ApiErrorResponse tryParseError(final String body) {
