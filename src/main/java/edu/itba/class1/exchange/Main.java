@@ -9,24 +9,18 @@ import java.util.List;
  * {@link ExchangeRateProvider} abstraction and exercises each of the 7 required user stories
  * end to end.
  * <p>
- * Requires the {@code FREECURRENCYAPI_KEY} environment variable to be set to a valid API key
- * from <a href="https://freecurrencyapi.com/">freecurrencyapi.com</a>.
+ * Uses the configured API key for freecurrencyapi.com.
  */
 public final class Main {
 
 	private static final String API_BASE_URL = "https://api.freecurrencyapi.com/v1";
+	private static final String API_KEY = "tu_api_key";
 
 	private Main() {
 	}
 
 	public static void main(final String[] args) {
-		final String apiKey = System.getenv("FREECURRENCYAPI_KEY");
-		if (apiKey == null || apiKey.isBlank()) {
-			System.err.println("Please set the FREECURRENCYAPI_KEY environment variable with your API key.");
-			return;
-		}
-
-		final var exchangeRateProvider = new FreeCurrencyApiExchangeRateProvider(API_BASE_URL, apiKey);
+		final var exchangeRateProvider = new FreeCurrencyApiExchangeRateProvider(API_BASE_URL, API_KEY);
 		final var currencyConverter = new CurrencyConverter(exchangeRateProvider);
 
 		try {
