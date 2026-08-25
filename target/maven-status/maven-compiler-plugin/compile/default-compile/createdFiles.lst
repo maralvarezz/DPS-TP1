@@ -1,0 +1,17 @@
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider$CurrenciesResponse.class
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider.class
+edu/itba/class1/exchange/CurrencyConverter.class
+edu/itba/class1/exchange/CurrencyExchangeConnectionException.class
+edu/itba/class1/exchange/ConversionResult.class
+edu/itba/class1/exchange/ConversionDetail.class
+edu/itba/class1/exchange/CurrencyExchangeException.class
+edu/itba/class1/exchange/MoneyAmount.class
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider$ApiErrorResponse.class
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider$HistoricalRatesResponse.class
+edu/itba/class1/exchange/ExchangeRate.class
+edu/itba/class1/exchange/ExchangeRateProvider.class
+edu/itba/class1/exchange/UnknownCurrencyException.class
+edu/itba/class1/exchange/Main.class
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider$RatesResponse.class
+edu/itba/class1/exchange/CurrencyExchangeApiException.class
+edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider$ApiErrorDetail.class

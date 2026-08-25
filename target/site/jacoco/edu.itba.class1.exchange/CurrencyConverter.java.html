@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurrencyConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TP1 - Currency Converter</a> &gt; <a href="index.source.html" class="el_package">edu.itba.class1.exchange</a> &gt; <span class="el_source">CurrencyConverter.java</span></div><h1>CurrencyConverter.java</h1><pre class="source lang-java linenums">package edu.itba.class1.exchange;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Currency;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * Currency conversion business rules.
+ * &lt;p&gt;
+ * This class only knows about {@link ExchangeRateProvider}: it has no idea whether rates come
+ * from an HTTP API, a file, or a database. That detail is injected, so the business rules can
+ * be unit tested without any network access.
+ */
+public class CurrencyConverter {
+
+	private final ExchangeRateProvider exchangeRateProvider;
+
+<span class="fc" id="L23">	public CurrencyConverter(final ExchangeRateProvider exchangeRateProvider) {</span>
+<span class="fc" id="L24">		this.exchangeRateProvider = Objects.requireNonNull(exchangeRateProvider,</span>
+				&quot;exchangeRateProvider must not be null&quot;);
+<span class="fc" id="L26">	}</span>
+
+	/**
+	 * User story 1: lists every currency supported by the provider, so the caller knows which
+	 * ones it can use.
+	 */
+	public List&lt;Currency&gt; listSupportedCurrencies() {
+<span class="fc" id="L33">		return exchangeRateProvider.listSupportedCurrencies();</span>
+	}
+
+	/**
+	 * User stories 2 and 3: the current exchange rate between two currencies and when it was
+	 * obtained, without converting any amount.
+	 */
+	public ExchangeRate getExchangeRate(final Currency fromCurrency, final Currency toCurrency) {
+<span class="fc" id="L41">		Objects.requireNonNull(fromCurrency, &quot;fromCurrency must not be null&quot;);</span>
+<span class="fc" id="L42">		Objects.requireNonNull(toCurrency, &quot;toCurrency must not be null&quot;);</span>
+
+<span class="fc" id="L44">		final Map&lt;Currency, BigDecimal&gt; rates = exchangeRateProvider.getExchangeRates(fromCurrency, List.of(toCurrency));</span>
+<span class="fc" id="L45">		final BigDecimal rate = rateFor(rates, toCurrency);</span>
+<span class="fc" id="L46">		return new ExchangeRate(fromCurrency, toCurrency, rate, Instant.now());</span>
+	}
+
+	/**
+	 * Converts {@code amount} of {@code fromCurrency} into {@code toCurrency} using the most
+	 * recent rate available. This is the original single-pair signature reviewed in class,
+	 * kept for backward compatibility and implemented in terms of the new multi-currency
+	 * {@link #convert(Currency, MoneyAmount, List)}.
+	 * &lt;p&gt;
+	 * Unlike the version reviewed in class, provider failures are no longer swallowed: they
+	 * propagate as a {@link CurrencyExchangeException} instead of silently returning
+	 * {@link MoneyAmount#ZERO} (user story 4).
+	 */
+	public MoneyAmount convert(final Currency fromCurrency, final Currency toCurrency, final MoneyAmount amount) {
+<span class="fc" id="L60">		Objects.requireNonNull(toCurrency, &quot;toCurrency must not be null&quot;);</span>
+<span class="fc" id="L61">		return convert(fromCurrency, amount, List.of(toCurrency)).conversions().get(toCurrency).convertedAmount();</span>
+	}
+
+	/**
+	 * User story 5: converts {@code amount} of {@code fromCurrency} into every currency in
+	 * {@code toCurrencies} at once, using the most recent rates available.
+	 */
+	public ConversionResult convert(final Currency fromCurrency, final MoneyAmount amount, final List&lt;Currency&gt; toCurrencies) {
+<span class="fc" id="L69">		Objects.requireNonNull(fromCurrency, &quot;fromCurrency must not be null&quot;);</span>
+<span class="fc" id="L70">		Objects.requireNonNull(amount, &quot;amount must not be null&quot;);</span>
+<span class="fc" id="L71">		Objects.requireNonNull(toCurrencies, &quot;toCurrencies must not be null&quot;);</span>
+
+<span class="fc" id="L73">		final Map&lt;Currency, BigDecimal&gt; rates = exchangeRateProvider.getExchangeRates(fromCurrency, toCurrencies);</span>
+<span class="fc" id="L74">		return buildConversionResult(fromCurrency, amount, toCurrencies, rates, null);</span>
+	}
+
+	/**
+	 * User story 6: converts {@code amount} of {@code fromCurrency} into every currency in
+	 * {@code toCurrencies}, using the end-of-day rates that applied on {@code date}.
+	 */
+	public ConversionResult convert(final Currency fromCurrency, final MoneyAmount amount,
+									 final List&lt;Currency&gt; toCurrencies, final LocalDate date) {
+<span class="fc" id="L83">		Objects.requireNonNull(fromCurrency, &quot;fromCurrency must not be null&quot;);</span>
+<span class="fc" id="L84">		Objects.requireNonNull(amount, &quot;amount must not be null&quot;);</span>
+<span class="fc" id="L85">		Objects.requireNonNull(toCurrencies, &quot;toCurrencies must not be null&quot;);</span>
+<span class="fc" id="L86">		Objects.requireNonNull(date, &quot;date must not be null&quot;);</span>
+
+<span class="fc" id="L88">		final Map&lt;Currency, BigDecimal&gt; rates = exchangeRateProvider.getHistoricalExchangeRates(fromCurrency, toCurrencies, date);</span>
+<span class="fc" id="L89">		return buildConversionResult(fromCurrency, amount, toCurrencies, rates, date);</span>
+	}
+
+	private ConversionResult buildConversionResult(final Currency fromCurrency, final MoneyAmount amount,
+													 final List&lt;Currency&gt; toCurrencies, final Map&lt;Currency, BigDecimal&gt; rates,
+													 final LocalDate rateDate) {
+<span class="fc" id="L95">		final Map&lt;Currency, ConversionDetail&gt; conversions = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">		for (final Currency toCurrency : toCurrencies) {</span>
+<span class="fc" id="L97">			final BigDecimal rate = rateFor(rates, toCurrency);</span>
+<span class="fc" id="L98">			conversions.put(toCurrency, new ConversionDetail(rate, amount.multiply(rate)));</span>
+<span class="fc" id="L99">		}</span>
+<span class="fc" id="L100">		return new ConversionResult(fromCurrency, amount, Instant.now(), rateDate, conversions);</span>
+	}
+
+	private BigDecimal rateFor(final Map&lt;Currency, BigDecimal&gt; rates, final Currency currency) {
+<span class="fc" id="L104">		final BigDecimal rate = rates.get(currency);</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		if (rate == null) {</span>
+<span class="fc" id="L106">			throw new UnknownCurrencyException(currency);</span>
+		}
+<span class="fc" id="L108">		return rate;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

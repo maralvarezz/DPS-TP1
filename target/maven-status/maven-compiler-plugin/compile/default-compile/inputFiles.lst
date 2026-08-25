@@ -1,0 +1,12 @@
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/ConversionDetail.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/ConversionResult.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/CurrencyConverter.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/CurrencyExchangeApiException.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/CurrencyExchangeConnectionException.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/CurrencyExchangeException.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/ExchangeRate.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/ExchangeRateProvider.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/FreeCurrencyApiExchangeRateProvider.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/Main.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/MoneyAmount.java
+/Users/mavualvarez/Documents/GitHub/DPS-TP1/src/main/java/edu/itba/class1/exchange/UnknownCurrencyException.java

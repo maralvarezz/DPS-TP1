@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConversionResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TP1 - Currency Converter</a> &gt; <a href="index.source.html" class="el_package">edu.itba.class1.exchange</a> &gt; <span class="el_source">ConversionResult.java</span></div><h1>ConversionResult.java</h1><pre class="source lang-java linenums">package edu.itba.class1.exchange;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * The outcome of converting one amount, in one base currency, into one or more target
+ * currencies at once (user story 5: &quot;quiero poder convertir desde el mismo monto y moneda a
+ * mas de una moneda a la vez&quot;).
+ *
+ * @param fromCurrency the base currency
+ * @param amount       the base amount that was converted
+ * @param fetchedAt    when the underlying quote was obtained, so its freshness can be verified (story 2)
+ * @param rateDate     the historical date the rates apply to, or {@code null} when the latest
+ *                     available rates were used (story 6)
+ * @param conversions  the per-target-currency conversion detail, keyed by currency (story 7)
+ */
+public record ConversionResult(Currency fromCurrency, MoneyAmount amount, Instant fetchedAt, LocalDate rateDate,
+								Map&lt;Currency, ConversionDetail&gt; conversions) {
+
+<span class="fc" id="L25">	public ConversionResult {</span>
+		// Preserve the caller's requested order (Map.copyOf does not) so results print in the
+		// same order the target currencies were requested in.
+<span class="fc" id="L28">		conversions = Collections.unmodifiableMap(new LinkedHashMap&lt;&gt;(conversions));</span>
+<span class="fc" id="L29">	}</span>
+
+	public boolean isHistorical() {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">		return rateDate != null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

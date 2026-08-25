@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurrencyExchangeApiException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TP1 - Currency Converter</a> &gt; <a href="index.source.html" class="el_package">edu.itba.class1.exchange</a> &gt; <span class="el_source">CurrencyExchangeApiException.java</span></div><h1>CurrencyExchangeApiException.java</h1><pre class="source lang-java linenums">package edu.itba.class1.exchange;
+
+/**
+ * The exchange rate provider answered, but with an error (e.g. HTTP 404, 401, 429 or 500),
+ * as opposed to a connection failure. Carries the HTTP status code and, when the provider
+ * supplied one, its own machine-readable error code, so the caller can react accordingly
+ * instead of just seeing &quot;something went wrong&quot;.
+ */
+public class CurrencyExchangeApiException extends CurrencyExchangeException {
+
+	private final int statusCode;
+	private final String errorCode;
+
+	public CurrencyExchangeApiException(final int statusCode, final String errorCode, final String message) {
+<span class="fc" id="L15">		super(message);</span>
+<span class="fc" id="L16">		this.statusCode = statusCode;</span>
+<span class="fc" id="L17">		this.errorCode = errorCode;</span>
+<span class="fc" id="L18">	}</span>
+
+	public int getStatusCode() {
+<span class="fc" id="L21">		return statusCode;</span>
+	}
+
+	/**
+	 * The provider's own machine-readable error code (e.g. &quot;invalid_api_key&quot;), or {@code null}
+	 * when the error response did not include one or could not be parsed.
+	 */
+	public String getErrorCode() {
+<span class="fc" id="L29">		return errorCode;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurrencyExchangeConnectionException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TP1 - Currency Converter</a> &gt; <a href="index.source.html" class="el_package">edu.itba.class1.exchange</a> &gt; <span class="el_source">CurrencyExchangeConnectionException.java</span></div><h1>CurrencyExchangeConnectionException.java</h1><pre class="source lang-java linenums">package edu.itba.class1.exchange;
+
+/**
+ * The exchange rate provider could not be reached at all: no HTTP response was obtained
+ * (network failure, timeout, DNS error, etc). Distinguishing this from
+ * {@link CurrencyExchangeApiException} lets callers tell &quot;the API rejected us&quot; apart from
+ * &quot;we never got to talk to the API&quot;.
+ */
+public class CurrencyExchangeConnectionException extends CurrencyExchangeException {
+
+	public CurrencyExchangeConnectionException(final String message, final Throwable cause) {
+<span class="fc" id="L12">		super(message, cause);</span>
+<span class="fc" id="L13">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
