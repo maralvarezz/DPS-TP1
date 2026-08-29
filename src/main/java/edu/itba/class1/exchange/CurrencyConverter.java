@@ -28,8 +28,7 @@ public class CurrencyConverter {
 	private final ExchangeRateProvider exchangeRateProvider;
 
 	public CurrencyConverter(final ExchangeRateProvider exchangeRateProvider) {
-		this.exchangeRateProvider = Objects.requireNonNull(exchangeRateProvider,
-				"exchangeRateProvider must not be null");
+		this.exchangeRateProvider = Objects.requireNonNull(exchangeRateProvider, "exchangeRateProvider must not be null");
 	}
 
 	/**
@@ -37,7 +36,9 @@ public class CurrencyConverter {
 	 * ones it can use.
 	 */
 	public List<Currency> listSupportedCurrencies() {
-		return exchangeRateProvider.listSupportedCurrencies();
+		final List<Currency> currencies = Objects.requireNonNull(exchangeRateProvider.listSupportedCurrencies(),
+				"exchangeRateProvider must not return a null currency list");
+		return List.copyOf(currencies);
 	}
 
 	/**
@@ -48,7 +49,7 @@ public class CurrencyConverter {
 		Objects.requireNonNull(fromCurrency, "fromCurrency must not be null");
 		Objects.requireNonNull(toCurrency, "toCurrency must not be null");
 
-		final Map<Currency, BigDecimal> rates = exchangeRateProvider.getExchangeRates(fromCurrency, List.of(toCurrency));
+		final Map<Currency, BigDecimal> rates = requireRates(exchangeRateProvider.getExchangeRates(fromCurrency, List.of(toCurrency)));
 		final BigDecimal rate = rateFor(rates, toCurrency);
 		return new ExchangeRate(fromCurrency, toCurrency, rate, Instant.now());
 	}
@@ -64,7 +65,7 @@ public class CurrencyConverter {
 	 * {@link MoneyAmount#ZERO} (user story 4).
 	 */
 	public MoneyAmount convert(final Currency fromCurrency, final Currency toCurrency, final MoneyAmount amount) {
-		Objects.requireNonNull(toCurrency, "toCurrency must not be null");
+
 		return convert(fromCurrency, amount, List.of(toCurrency)).conversions().get(toCurrency).convertedAmount();
 	}
 
@@ -75,10 +76,11 @@ public class CurrencyConverter {
 	public ConversionResult convert(final Currency fromCurrency, final MoneyAmount amount, final List<Currency> toCurrencies) {
 		Objects.requireNonNull(fromCurrency, "fromCurrency must not be null");
 		Objects.requireNonNull(amount, "amount must not be null");
-		Objects.requireNonNull(toCurrencies, "toCurrencies must not be null");
+		final List<Currency> validatedToCurrencies = requireTargetCurrencies(toCurrencies);
 
-		final Map<Currency, BigDecimal> rates = exchangeRateProvider.getExchangeRates(fromCurrency, toCurrencies);
-		return buildConversionResult(fromCurrency, amount, toCurrencies, rates, null);
+		final Map<Currency, BigDecimal> rates = requireRates(
+				exchangeRateProvider.getExchangeRates(fromCurrency, validatedToCurrencies));
+		return buildConversionResult(fromCurrency, amount, validatedToCurrencies, rates, null);
 	}
 
 	/**
@@ -89,11 +91,31 @@ public class CurrencyConverter {
 									 final List<Currency> toCurrencies, final LocalDate date) {
 		Objects.requireNonNull(fromCurrency, "fromCurrency must not be null");
 		Objects.requireNonNull(amount, "amount must not be null");
-		Objects.requireNonNull(toCurrencies, "toCurrencies must not be null");
+		final List<Currency> validatedToCurrencies = requireTargetCurrencies(toCurrencies);
 		Objects.requireNonNull(date, "date must not be null");
 
-		final Map<Currency, BigDecimal> rates = exchangeRateProvider.getHistoricalExchangeRates(fromCurrency, toCurrencies, date);
-		return buildConversionResult(fromCurrency, amount, toCurrencies, rates, date);
+		final Map<Currency, BigDecimal> rates = requireRates(
+				exchangeRateProvider.getHistoricalExchangeRates(fromCurrency, validatedToCurrencies, date));
+		return buildConversionResult(fromCurrency, amount, validatedToCurrencies, rates, date);
+	}
+
+	private List<Currency> requireTargetCurrencies(final List<Currency> toCurrencies) {
+		if (toCurrencies.isEmpty()) {
+			throw new IllegalArgumentException("toCurrencies must not be empty");
+		}
+		return List.copyOf(toCurrencies);
+	}
+
+	private Map<Currency, BigDecimal> requireRates(final Map<Currency, BigDecimal> rates) {
+		Objects.requireNonNull(rates, "exchangeRateProvider must not return null rates");
+		rates.forEach((currency, rate) -> {
+			Objects.requireNonNull(currency, "exchangeRateProvider must not return a null currency");
+			Objects.requireNonNull(rate, "exchangeRateProvider must not return a null rate");
+			if (rate.signum() <= 0) {
+				throw new IllegalStateException("exchangeRateProvider must return positive rates");
+			}
+		});
+		return Map.copyOf(rates);
 	}
 
 	private ConversionResult buildConversionResult(final Currency fromCurrency, final MoneyAmount amount,
@@ -108,10 +130,9 @@ public class CurrencyConverter {
 	}
 
 	private BigDecimal rateFor(final Map<Currency, BigDecimal> rates, final Currency currency) {
-		final BigDecimal rate = rates.get(currency);
-		if (rate == null) {
+		if (!rates.containsKey(currency)) {
 			throw new UnknownCurrencyException(currency);
 		}
-		return rate;
+		return rates.get(currency);
 	}
 }

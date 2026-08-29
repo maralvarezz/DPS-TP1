@@ -22,9 +22,6 @@ public final class Main {
 	private static final String API_BASE_URL = "https://api.freecurrencyapi.com/v1";
 	private static final String API_KEY = "fca_live_tMQ4oYRmk8T587mrTdOFbTREYXjqCLRkXwJUS4C6";
 
-	private Main() {
-	}
-
 	public static void main(final String[] args) {
 		final var exchangeRateProvider = new FreeCurrencyApiExchangeRateProvider(API_BASE_URL, API_KEY);
 		final var currencyConverter = new CurrencyConverter(exchangeRateProvider);

@@ -38,16 +38,16 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 	 * @param apiKey     the freecurrencyapi.com API key.
 	 */
 	public FreeCurrencyApiExchangeRateProvider(final String apiBaseUrl, final String apiKey) {
-		this.apiBaseUrl = Objects.requireNonNull(apiBaseUrl, "apiBaseUrl must not be null");
-		this.apiKey = Objects.requireNonNull(apiKey, "apiKey must not be null");
+		this.apiBaseUrl = requireNonBlank(apiBaseUrl, "apiBaseUrl");
+		this.apiKey = requireNonBlank(apiKey, "apiKey");
 	}
 
 	@Override
 	public List<Currency> listSupportedCurrencies() {
 		final String body = get(apiBaseUrl + "/currencies", Map.of());
 		final CurrenciesResponse response = parse(body, CurrenciesResponse.class);
-		requireData(response.data);
-		return response.data.keySet().stream()
+		final Map<String, Object> data = requireData(response.data);
+		return data.keySet().stream()
 				.map(this::toJavaCurrencyOrNull)
 				.filter(Objects::nonNull)
 				.toList();
@@ -55,24 +55,34 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 
 	@Override
 	public Map<Currency, BigDecimal> getExchangeRates(final Currency fromCurrency, final List<Currency> toCurrencies) {
-		final String body = get(apiBaseUrl + "/latest", queryParams(fromCurrency, toCurrencies));
+		final List<Currency> copyToCurrencies = List.copyOf(toCurrencies);
+
+		final String body = get(apiBaseUrl + "/latest", queryParams(fromCurrency, copyToCurrencies));
 		final RatesResponse response = parse(body, RatesResponse.class);
-		requireData(response.data);
-		return toJavaCurrencyRates(response.data);
+		return toJavaCurrencyRates(requireData(response.data));
 	}
 
 	@Override
 	public Map<Currency, BigDecimal> getHistoricalExchangeRates(final Currency fromCurrency,
-																  final List<Currency> toCurrencies,
-																  final LocalDate date) {
-		final Map<String, String> params = queryParams(fromCurrency, toCurrencies);
+															  final List<Currency> toCurrencies,
+															  final LocalDate date) {
+		final List<Currency> copyToCurrencies = List.copyOf(toCurrencies);
+		final Map<String, String> params = queryParams(fromCurrency, copyToCurrencies);
 		params.put("date", date.toString());
 
 		final String body = get(apiBaseUrl + "/historical", params);
 		final HistoricalRatesResponse response = parse(body, HistoricalRatesResponse.class);
-		requireData(response.data);
-		final Map<String, BigDecimal> ratesForDate = response.data.getOrDefault(date.toString(), Map.of());
-		return toJavaCurrencyRates(ratesForDate);
+		final Map<String, Map<String, BigDecimal>> data = requireData(response.data);
+		final Map<String, BigDecimal> ratesForDate = data.get(date.toString());
+		return ratesForDate == null ? Map.of() : toJavaCurrencyRates(ratesForDate);
+	}
+
+	private static String requireNonBlank(final String value, final String name) {
+		Objects.requireNonNull(value, name + " must not be null");
+		if (value.isBlank()) {
+			throw new IllegalArgumentException(name + " must not be blank");
+		}
+		return value;
 	}
 
 	private Map<String, String> queryParams(final Currency fromCurrency, final List<Currency> toCurrencies) {
@@ -88,6 +98,10 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 	private Map<Currency, BigDecimal> toJavaCurrencyRates(final Map<String, BigDecimal> ratesByCode) {
 		final Map<Currency, BigDecimal> rates = new LinkedHashMap<>();
 		ratesByCode.forEach((code, rate) -> {
+			if (rate == null || rate.signum() <= 0) {
+				throw new CurrencyExchangeApiException(200, "invalid_response",
+						"The currency exchange API returned a non-positive or null rate for currency '" + code + "'.");
+			}
 			final Currency currency = toJavaCurrencyOrNull(code);
 			if (currency != null) {
 				rates.put(currency, rate);
@@ -149,11 +163,12 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 		return new CurrencyExchangeApiException(statusCode, errorCode, message);
 	}
 
-	private void requireData(final Object data) {
+	private <T> T requireData(final T data) {
 		if (data == null) {
 			throw new CurrencyExchangeApiException(200, "empty_response",
 					"The currency exchange API returned a response without a \"data\" field.");
 		}
+		return data;
 	}
 
 	private ApiErrorResponse tryParseError(final String body) {

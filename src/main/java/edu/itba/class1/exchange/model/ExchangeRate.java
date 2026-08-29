@@ -3,6 +3,7 @@ package edu.itba.class1.exchange.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Currency;
+import java.util.Objects;
 
 /**
  * The exchange rate between two currencies, without applying it to any amount
@@ -14,4 +15,6 @@ import java.util.Currency;
  * @param fetchedAt    when this quote was obtained (user story 2)
  */
 public record ExchangeRate(Currency fromCurrency, Currency toCurrency, BigDecimal rate, Instant fetchedAt) {
+
+
 }
