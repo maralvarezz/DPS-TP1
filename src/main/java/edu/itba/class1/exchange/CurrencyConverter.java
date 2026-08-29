@@ -1,5 +1,6 @@
 package edu.itba.class1.exchange;
 
+import edu.itba.class1.exchange.exception.CurrencyExchangeException;
 import edu.itba.class1.exchange.exception.UnknownCurrencyException;
 import edu.itba.class1.exchange.model.ConversionDetail;
 import edu.itba.class1.exchange.model.ConversionResult;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Currency conversion business rules.
@@ -65,7 +67,6 @@ public class CurrencyConverter {
 	 * {@link MoneyAmount#ZERO} (user story 4).
 	 */
 	public MoneyAmount convert(final Currency fromCurrency, final Currency toCurrency, final MoneyAmount amount) {
-
 		return convert(fromCurrency, amount, List.of(toCurrency)).conversions().get(toCurrency).convertedAmount();
 	}
 
@@ -122,17 +123,14 @@ public class CurrencyConverter {
 													 final List<Currency> toCurrencies, final Map<Currency, BigDecimal> rates,
 													 final LocalDate rateDate) {
 		final Map<Currency, ConversionDetail> conversions = new LinkedHashMap<>();
-		for (final Currency toCurrency : toCurrencies) {
-			final BigDecimal rate = rateFor(rates, toCurrency);
-			conversions.put(toCurrency, new ConversionDetail(rate, amount.multiply(rate)));
-		}
+		toCurrencies.forEach(toCurrency -> {
+            final BigDecimal rate = rateFor(rates, toCurrency);
+            conversions.put(toCurrency,new ConversionDetail(rate, amount.multiply(rate)));
+        });
 		return new ConversionResult(fromCurrency, amount, Instant.now(), rateDate, conversions);
 	}
 
 	private BigDecimal rateFor(final Map<Currency, BigDecimal> rates, final Currency currency) {
-		if (!rates.containsKey(currency)) {
-			throw new UnknownCurrencyException(currency);
-		}
-		return rates.get(currency);
+		return Optional.ofNullable(rates.get(currency)).orElseThrow(()->new UnknownCurrencyException(currency));
 	}
 }
