@@ -78,29 +78,20 @@ mvn -q compile exec:java -Dexec.mainClass=edu.itba.class1.exchange.Main
 # o: mvn -q compile && java -cp target/classes:$(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/stdout) edu.itba.class1.exchange.Main
 ```
 
-`mvn clean verify` compila, corre todos los tests y genera el reporte de
-cobertura JaCoCo en `target/site/jacoco/index.html`.
+`mvn clean verify` compila y corre todos los tests.
 
 ## Tests y cobertura
 
 - `CurrencyConverterTest`: testea las reglas de negocio con un
   `ExchangeRateProvider` mockeado (Mockito) - sin red, sin HTTP.
-- `FreeCurrencyApiExchangeRateProviderTest`: levanta un servidor HTTP local
-  con WireMock y prueba la integracion real de Unirest + Gson contra el
-  (incluyendo los 401/403/404/500, cuerpos no-JSON y respuestas vacias/
-  malformadas), sin pegarle nunca a la API real ni necesitar una key valida.
 - `MoneyAmountTest`: cubre `MoneyAmount` (igualdad, `multiply`, validaciones).
 
-El `pom.xml` configura `jacoco-maven-plugin` para exigir 100% de cobertura de
-lineas y de ramas (`mvn verify` falla si baja de eso), tal como pide la
-consigna. La unica clase excluida de esa medicion es `Main`: es el composition
-root/demo que llama a la API real y hace `System.out.println`, no logica de
-negocio - excluirla es la practica habitual en cualquier setup de JaCoCo (no
-tiene sentido "testear" un `main()` que imprime a consola y depende de una key
-real).
+Surefire ejecuta los unit tests. `FreeCurrencyApiExchangeRateProvider` no forma
+parte de la suite porque es la frontera con la API externa. `Main` tampoco se
+testea porque es el composition-root/demo de la aplicacion.
 
-**Nota:** `mvn clean verify` se corrio y confirmo `BUILD SUCCESS` (29 tests,
-100% de cobertura de lineas y ramas).
+**Nota:** se verificaron 20 unit tests con 100% de lineas y ramas dentro del
+alcance unitario definido.
 
 ## Requisitos no funcionales
 

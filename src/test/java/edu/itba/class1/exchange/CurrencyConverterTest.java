@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.itba.class1.exchange.exception.CurrencyExchangeApiException;
+import edu.itba.class1.exchange.exception.CurrencyExchangeConnectionException;
 import edu.itba.class1.exchange.exception.UnknownCurrencyException;
 import edu.itba.class1.exchange.model.ConversionResult;
 import edu.itba.class1.exchange.model.ExchangeRate;
@@ -60,12 +61,27 @@ class CurrencyConverterTest {
 	@Test
 	void legacyConvertNoLongerSwallowsProviderFailures() {
 		// User story 4: a failure must be surfaced, not turned into a silent MoneyAmount.ZERO.
-		final var apiException = new CurrencyExchangeApiException(500, null, "boom");
+		final var apiException = new CurrencyExchangeApiException(500, "provider_error", "boom");
 		when(exchangeRateProvider.getExchangeRates(EUR, List.of(USD))).thenThrow(apiException);
 
 		final var converter = new CurrencyConverter(exchangeRateProvider);
 
 		assertThatThrownBy(() -> converter.convert(EUR, USD, new MoneyAmount(100))).isSameAs(apiException);
+		assertThat(apiException.getStatusCode()).isEqualTo(500);
+		assertThat(apiException.getErrorCode()).isEqualTo("provider_error");
+	}
+
+	@Test
+	void legacyConvertNoLongerSwallowsProviderConnectionFailures() {
+		final var cause = new RuntimeException("timeout");
+		final var connectionException = new CurrencyExchangeConnectionException("connection failed", cause);
+		when(exchangeRateProvider.getExchangeRates(EUR, List.of(USD))).thenThrow(connectionException);
+
+		final var converter = new CurrencyConverter(exchangeRateProvider);
+
+		assertThatThrownBy(() -> converter.convert(EUR, USD, new MoneyAmount(100)))
+				.isSameAs(connectionException)
+				.hasCause(cause);
 	}
 
 	@Test
@@ -127,6 +143,23 @@ class CurrencyConverterTest {
 		assertThat(result.conversions().get(EUR).convertedAmount()).isEqualTo(new MoneyAmount(90));
 		assertThat(result.conversions().get(JPY).rate()).isEqualByComparingTo("150");
 		assertThat(result.conversions().get(JPY).convertedAmount()).isEqualTo(new MoneyAmount(15000));
+	}
+
+	@Test
+	void convertRejectsAnEmptyTargetCurrencyList() {
+		final var converter = new CurrencyConverter(exchangeRateProvider);
+
+		assertThatThrownBy(() -> converter.convert(USD, new MoneyAmount(100), List.of()))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void getExchangeRateRejectsANonPositiveProviderRate() {
+		when(exchangeRateProvider.getExchangeRates(USD, List.of(EUR))).thenReturn(Map.of(EUR, BigDecimal.ZERO));
+		final var converter = new CurrencyConverter(exchangeRateProvider);
+
+		assertThatThrownBy(() -> converter.getExchangeRate(USD, EUR))
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
