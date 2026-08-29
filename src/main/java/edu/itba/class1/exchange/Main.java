@@ -6,7 +6,10 @@ import edu.itba.class1.exchange.model.ExchangeRate;
 import edu.itba.class1.exchange.model.MoneyAmount;
 import edu.itba.class1.exchange.provider.FreeCurrencyApiExchangeRateProvider;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Currency;
 import java.util.List;
 
@@ -21,6 +24,9 @@ public final class Main {
 
 	private static final String API_BASE_URL = "https://api.freecurrencyapi.com/v1";
 	private static final String API_KEY = "fca_live_tMQ4oYRmk8T587mrTdOFbTREYXjqCLRkXwJUS4C6";
+	private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter
+			.ofPattern("uuuu-MM-dd HH:mm:ss VV")
+			.withZone(ZoneId.systemDefault());
 
 	public static void main(final String[] args) {
 		final var exchangeRateProvider = new FreeCurrencyApiExchangeRateProvider(API_BASE_URL, API_KEY);
@@ -56,7 +62,7 @@ public final class Main {
 		System.out.println("\n== Rate only (no amount) ==");
 		final ExchangeRate quote = currencyConverter.getExchangeRate(from, to);
 		System.out.println("1 " + quote.fromCurrency().getCurrencyCode() + " = " + quote.rate() + " "
-				+ quote.toCurrency().getCurrencyCode() + " (as of " + quote.fetchedAt() + ")");
+				+ quote.toCurrency().getCurrencyCode() + " (as of " + formatTimestamp(quote.fetchedAt()) + ")");
 	}
 
 	private static void printConversionToMultipleCurrencies(final CurrencyConverter currencyConverter, final Currency from,
@@ -75,11 +81,15 @@ public final class Main {
 	}
 
 	private static void printConversionResult(final ConversionResult result) {
-		System.out.println("Quote fetched at: " + result.fetchedAt()
+		System.out.println("Quote fetched at: " + formatTimestamp(result.fetchedAt())
 				+ (result.isHistorical() ? " (rates for " + result.rateDate() + ")" : " (latest rates)"));
 		result.conversions().forEach((currency, detail) ->
 				System.out.println(result.amount().amount() + " " + result.fromCurrency().getCurrencyCode() + " = "
 						+ detail.convertedAmount().amount() + " " + currency.getCurrencyCode()
 						+ " (rate used: " + detail.rate() + ")"));
+	}
+
+	private static String formatTimestamp(final Instant timestamp) {
+		return TIMESTAMP_FORMATTER.format(timestamp);
 	}
 }
