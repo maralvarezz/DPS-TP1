@@ -74,11 +74,24 @@ setear nada para probarlo.
 
 ```bash
 mvn clean verify
-mvn -q compile exec:java -Dexec.mainClass=edu.itba.class1.exchange.Main
-# o: mvn -q compile && java -cp target/classes:$(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/stdout) edu.itba.class1.exchange.Main
+mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main"
 ```
 
 `mvn clean verify` compila y corre todos los tests.
+
+La conversion tambien se puede configurar por parametros:
+
+```powershell
+mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main" "-Dexec.args=--amount=250.50 --from=ARS --to=USD,EUR --date=2025-08-20"
+```
+
+- `--amount`: monto a convertir.
+- `--from`: moneda de origen en formato ISO 4217.
+- `--to`: una o mas monedas de destino separadas por comas.
+- `--date`: fecha historica en formato `YYYY-MM-DD`.
+
+Todos los parametros son opcionales e independientes. Los valores por defecto
+son `--amount=100`, `--from=USD`, `--to=EUR,JPY` y `--date=2024-11-20`.
 
 ## Tests y cobertura
 
