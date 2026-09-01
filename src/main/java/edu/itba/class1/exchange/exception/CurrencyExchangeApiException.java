@@ -1,11 +1,5 @@
 package edu.itba.class1.exchange.exception;
 
-/**
- * The exchange rate provider answered, but with an error (e.g. HTTP 404, 401, 429 or 500),
- * as opposed to a connection failure. Carries the HTTP status code and, when the provider
- * supplied one, its own machine-readable error code, so the caller can react accordingly
- * instead of just seeing "something went wrong".
- */
 public class CurrencyExchangeApiException extends CurrencyExchangeException {
 
 	private final int statusCode;
@@ -21,10 +15,6 @@ public class CurrencyExchangeApiException extends CurrencyExchangeException {
 		return statusCode;
 	}
 
-	/**
-	 * The provider's own machine-readable error code (e.g. "invalid_api_key"), or {@code null}
-	 * when the error response did not include one or could not be parsed.
-	 */
 	public String getErrorCode() {
 		return errorCode;
 	}

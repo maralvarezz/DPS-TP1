@@ -19,13 +19,6 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Composition root: wires the concrete detail (freecurrencyapi.com, over Unirest) behind the
- * {@link ExchangeRateProvider} abstraction and exercises each of the 7 required user stories
- * end to end.
- * <p>
- * Uses the configured API key for freecurrencyapi.com.
- */
 public final class Main {
 
 	private static final String API_BASE_URL = "https://api.freecurrencyapi.com/v1";
@@ -53,7 +46,6 @@ public final class Main {
 			ERR.println("Invalid arguments: " + e.getMessage());
 			printUsage();
 		} catch (final CurrencyExchangeException e) {
-			// User story 4: connection/API errors are surfaced clearly instead of failing silently.
 			ERR.println("The currency exchange operation failed: " + e.getMessage());
 		}
 	}

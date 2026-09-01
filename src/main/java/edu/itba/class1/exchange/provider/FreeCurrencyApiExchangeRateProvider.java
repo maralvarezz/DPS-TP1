@@ -6,7 +6,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequest;
 
-import edu.itba.class1.exchange.CurrencyConverter;
 import edu.itba.class1.exchange.exception.CurrencyExchangeApiException;
 import edu.itba.class1.exchange.exception.CurrencyExchangeConnectionException;
 
@@ -19,24 +18,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * {@link ExchangeRateProvider} backed by the <a href="https://freecurrencyapi.com/">freecurrencyapi.com</a>
- * REST API, using Unirest and Gson exactly as reviewed in class. This is the only class in the
- * project allowed to know about HTTP or JSON: everything above it (the business rules in
- * {@link CurrencyConverter}) talks to the {@link ExchangeRateProvider} abstraction instead.
- */
 public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider {
 
 	private final String apiBaseUrl;
 	private final String apiKey;
 	private final Gson gson = new Gson();
 
-	/**
-	 * @param apiBaseUrl the API's base URL, e.g. {@code https://api.freecurrencyapi.com/v1}
-	 *                   (without a trailing slash). The {@code /latest}, {@code /historical}
-	 *                   and {@code /currencies} endpoints are appended to it.
-	 * @param apiKey     the freecurrencyapi.com API key.
-	 */
 	public FreeCurrencyApiExchangeRateProvider(final String apiBaseUrl, final String apiKey) {
 		this.apiBaseUrl = requireNonBlank(apiBaseUrl, "apiBaseUrl");
 		this.apiKey = requireNonBlank(apiKey, "apiKey");
@@ -114,17 +101,12 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 		try {
 			return Currency.getInstance(currencyCode);
 		} catch (final IllegalArgumentException e) {
-			// The JVM's ISO 4217 table does not know this code: skip it rather than fail the
-			// whole request over one currency we cannot represent.
 			return null;
 		}
 	}
 
 	private String get(final String url, final Map<String, String> queryParams) {
 		try {
-			// Unirest's fluent methods don't all return the same static type (header() narrows to
-			// GetRequest, queryString() widens back to HttpRequest), so the loop below is typed
-			// against the common HttpRequest interface rather than GetRequest.
 			HttpRequest request = Unirest.get(url).header("accept", "application/json").header("apikey", apiKey);
 			for (final Map.Entry<String, String> param : queryParams.entrySet()) {
 				request = request.queryString(param.getKey(), param.getValue());
@@ -179,8 +161,6 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 		}
 	}
 
-	// --- Response bodies, mapped the same way ExchangeRateResponse was mapped in class ---
-
 	private static class RatesResponse {
 		private Map<String, BigDecimal> data;
 	}
@@ -190,8 +170,6 @@ public class FreeCurrencyApiExchangeRateProvider implements ExchangeRateProvider
 	}
 
 	private static class CurrenciesResponse {
-		// We only need to know which currency codes exist; java.util.Currency already supplies
-		// a display name and symbol for each one, so the metadata values are left untyped.
 		private Map<String, Object> data;
 	}
 

@@ -2,10 +2,7 @@ package edu.itba.class1.exchange.exception;
 
 import java.util.Currency;
 
-/**
- * The provider's response did not include a rate for a currency that was requested
- * (e.g. an unsupported currency code).
- */
+
 public class UnknownCurrencyException extends CurrencyExchangeException {
 
 	private final Currency currency;

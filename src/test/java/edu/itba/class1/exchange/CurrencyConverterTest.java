@@ -48,7 +48,6 @@ class CurrencyConverterTest {
 
 	@Test
 	void legacyConvertPreservesTheBehaviourReviewedInClass() {
-		// Same scenario as the original class-1 CurrencyConverterTest: 100 EUR -> USD at 1.1528.
 		when(exchangeRateProvider.getExchangeRates(EUR, List.of(USD)))
 				.thenReturn(Map.of(USD, new BigDecimal("1.1528")));
 
@@ -60,7 +59,6 @@ class CurrencyConverterTest {
 
 	@Test
 	void legacyConvertNoLongerSwallowsProviderFailures() {
-		// User story 4: a failure must be surfaced, not turned into a silent MoneyAmount.ZERO.
 		final var apiException = new CurrencyExchangeApiException(500, "provider_error", "boom");
 		when(exchangeRateProvider.getExchangeRates(EUR, List.of(USD))).thenThrow(apiException);
 
