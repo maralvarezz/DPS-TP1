@@ -24,7 +24,7 @@ mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main"
 La conversion tambien se puede configurar por parametros:
 
 ```powershell
-mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main" "-Dexec.args=--amount=250.50 --from=ARS --to=USD,EUR --date=2025-08-20"
+mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main" "-Dexec.args=--amount=250.50 --from=USD --to=JPY,EUR --date=2025-08-20"
 ```
 
 - `--amount`: monto a convertir.
