@@ -8,64 +8,6 @@ Este proyecto toma el `CurrencyConverter` revisado en la Clase 1 (paquete
 funcionalidades pedidas en la consigna, usando la API de
 [freecurrencyapi.com](https://freecurrencyapi.com/).
 
-## Diseno
-
-La regla de negocio (`CurrencyConverter`) depende unicamente de la abstraccion
-`ExchangeRateProvider`. No sabe si las cotizaciones vienen de una API HTTP, un
-archivo o una base de datos. El unico detalle que sabe de HTTP/JSON es
-`FreeCurrencyApiExchangeRateProvider` (usa Unirest + Gson, igual que en clase),
-que implementa esa interfaz. Esto es el mismo ejemplo de inversion de
-dependencias visto en la Clase 1 (`CurrencyConverter -> ExchangeRateProvider <-
-FreeCurrencyApiExchangeRateProvider`), aplicado ahora a un contrato mas rico
-(listar monedas, cotizacion simple, cotizacion en lote e historica) en lugar
-del `getExchangeRate(from, to)` de una sola moneda que se vio en clase.
-
-```
-CurrencyConverter  --(depende de)-->  ExchangeRateProvider (interfaz)
-                                              ^
-                                              |
-                                FreeCurrencyApiExchangeRateProvider (detalle: Unirest + Gson)
-```
-
-Los montos se modelan con `MoneyAmount` (wrapper inmutable de `BigDecimal`,
-igual que en clase) y las monedas con `java.util.Currency` (no se reinventa un
-tipo propio: la clase estandar ya da codigo, simbolo y nombre).
-
-## Las 7 funcionalidades
-
-| # | Historia de usuario | Donde vive |
-|---|---|---|
-| 1 | Listar monedas soportadas | `CurrencyConverter.listSupportedCurrencies()` |
-| 2 | Timestamp de cuando se obtuvo la cotizacion | `ExchangeRate.fetchedAt()` / `ConversionResult.fetchedAt()` |
-| 3 | Cotizacion entre dos monedas sin convertir un monto | `CurrencyConverter.getExchangeRate(from, to)` -> `ExchangeRate` |
-| 4 | Manejo y notificacion clara de errores de conexion/API | Jerarquia `CurrencyExchangeException` (ver abajo) |
-| 5 | Convertir un monto a varias monedas a la vez | `CurrencyConverter.convert(from, amount, List<Currency> to)` -> `ConversionResult` |
-| 6 | Cotizacion historica para una fecha pasada | `CurrencyConverter.convert(from, amount, List<Currency> to, LocalDate date)` |
-| 7 | Ver la cotizacion usada por cada moneda | `ConversionResult.conversions()` -> `Map<Currency, ConversionDetail>`, cada `ConversionDetail` trae `rate()` y `convertedAmount()` |
-
-El metodo original `convert(Currency from, Currency to, MoneyAmount amount)`
-visto en clase se mantiene (delega en el nuevo `convert(from, amount,
-List.of(to))`), pero **ya no traga errores**: la version de clase hacia
-`catch (Exception e) { System.err.println(...); } return MoneyAmount.ZERO;`,
-que es exactamente el "simplemente fallar" que la consigna (historia 4) pide
-evitar. Ahora la excepcion se propaga tal cual, tipada, para que el que llama
-pueda reaccionar en vez de recibir un 0 silencioso.
-
-## Manejo de errores (historia 4)
-
-- `CurrencyExchangeConnectionException`: no se pudo hablar con la API (sin
-  respuesta HTTP: timeout, DNS, conexion rechazada, etc).
-- `CurrencyExchangeApiException`: la API respondio pero con error (401, 403,
-  404, 429, 500...). Expone `getStatusCode()` y, cuando la API lo informa,
-  `getErrorCode()` (p.ej. `invalid_api_key`).
-- `UnknownCurrencyException`: se pidio una moneda cuya cotizacion no vino en
-  la respuesta (p.ej. codigo mal escrito).
-
-Las tres heredan de `CurrencyExchangeException` (unchecked), asi que
-`CurrencyConverter` no necesita capturarlas: se propagan hasta quien use la
-libreria, que decide como notificarlas (`Main` las captura una sola vez, en el
-borde de la aplicacion, para imprimir un mensaje claro).
-
 ## Como correrlo
 
 Requiere Java 21+. `Main` ya trae configurada una API key de
@@ -93,6 +35,34 @@ mvn -q compile exec:java "-Dexec.mainClass=edu.itba.class1.exchange.Main" "-Dexe
 Todos los parametros son opcionales e independientes. Los valores por defecto
 son `--amount=100`, `--from=USD`, `--to=EUR,JPY` y `--date=2024-11-20`.
 
+## Las 7 funcionalidades
+
+| # | Historia de usuario | Donde vive |
+|---|---|---|
+| 1 | Listar monedas soportadas | `CurrencyConverter.listSupportedCurrencies()` |
+| 2 | Timestamp de cuando se obtuvo la cotizacion | `ExchangeRate.fetchedAt()` / `ConversionResult.fetchedAt()` |
+| 3 | Cotizacion entre dos monedas sin convertir un monto | `CurrencyConverter.getExchangeRate(from, to)` -> `ExchangeRate` |
+| 4 | Manejo y notificacion clara de errores de conexion/API | Jerarquia `CurrencyExchangeException` (ver abajo) |
+| 5 | Convertir un monto a varias monedas a la vez | `CurrencyConverter.convert(from, amount, List<Currency> to)` -> `ConversionResult` |
+| 6 | Cotizacion historica para una fecha pasada | `CurrencyConverter.convert(from, amount, List<Currency> to, LocalDate date)` |
+| 7 | Ver la cotizacion usada por cada moneda | `ConversionResult.conversions()` -> `Map<Currency, ConversionDetail>`, cada `ConversionDetail` trae `rate()` y `convertedAmount()` |
+
+
+## Manejo de errores
+
+- `CurrencyExchangeConnectionException`: no se pudo hablar con la API (sin
+  respuesta HTTP: timeout, DNS, conexion rechazada, etc).
+- `CurrencyExchangeApiException`: la API respondio pero con error (401, 403,
+  404, 429, 500...). 
+- `UnknownCurrencyException`: se pidio una moneda cuya cotizacion no vino en
+  la respuesta (p.ej. codigo mal escrito).
+
+Las tres heredan de `CurrencyExchangeException` (unchecked), asi que
+`CurrencyConverter` no necesita capturarlas: se propagan hasta quien use la
+libreria, que decide como notificarlas (`Main` las captura una sola vez, en el
+borde de la aplicacion, para imprimir un mensaje claro).
+
+
 ## Tests y cobertura
 
 - `CurrencyConverterTest`: testea las reglas de negocio con un
@@ -106,13 +76,3 @@ testea porque es el composition-root/demo de la aplicacion.
 **Nota:** se verificaron 20 unit tests con 100% de lineas y ramas dentro del
 alcance unitario definido.
 
-## Requisitos no funcionales
-
-1. Codigo limpio: metodos chicos y de una sola responsabilidad, nombres
-   explicitos, sin duplicacion entre `convert(...)` y sus variantes (todas
-   delegan en `buildConversionResult` / `rateFor`).
-2. Dependencias: el negocio (`CurrencyConverter`) depende de una abstraccion
-   (`ExchangeRateProvider`); el detalle (HTTP/JSON/Unirest/Gson) esta aislado
-   en `FreeCurrencyApiExchangeRateProvider`.
-3. Sin arquitectura especifica forzada, solo esa separacion negocio/detalle.
-4. Cobertura de unit tests 100% (ver seccion anterior).
