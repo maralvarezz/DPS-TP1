@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange.model;
+package edu.itba.class1.exchange.domain.model;
 
 import java.time.Instant;
 import java.time.LocalDate;

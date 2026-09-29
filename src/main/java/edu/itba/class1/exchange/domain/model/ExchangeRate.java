@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange.model;
+package edu.itba.class1.exchange.domain.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;

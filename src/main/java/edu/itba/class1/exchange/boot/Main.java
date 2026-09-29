@@ -1,10 +1,11 @@
-package edu.itba.class1.exchange;
+package edu.itba.class1.exchange.boot;
 
-import edu.itba.class1.exchange.exception.CurrencyExchangeException;
-import edu.itba.class1.exchange.model.ConversionResult;
-import edu.itba.class1.exchange.model.ExchangeRate;
-import edu.itba.class1.exchange.model.MoneyAmount;
-import edu.itba.class1.exchange.provider.FreeCurrencyApiExchangeRateProvider;
+import edu.itba.class1.exchange.application.CurrencyConverter;
+import edu.itba.class1.exchange.domain.exception.CurrencyExchangeException;
+import edu.itba.class1.exchange.domain.model.ConversionResult;
+import edu.itba.class1.exchange.domain.model.ExchangeRate;
+import edu.itba.class1.exchange.domain.model.MoneyAmount;
+import edu.itba.class1.exchange.gateway.FreeCurrencyApiExchangeRateProvider;
 
 import java.io.PrintStream;
 import java.math.BigDecimal;

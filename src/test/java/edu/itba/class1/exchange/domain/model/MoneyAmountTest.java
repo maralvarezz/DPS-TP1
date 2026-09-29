@@ -1,11 +1,14 @@
-package edu.itba.class1.exchange.model;
+package edu.itba.class1.exchange.domain.model;
 
-import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 
 class MoneyAmountTest {
 

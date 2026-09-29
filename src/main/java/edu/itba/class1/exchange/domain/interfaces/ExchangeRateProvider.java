@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange.provider;
+package edu.itba.class1.exchange.domain.interfaces;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

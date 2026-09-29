@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange.exception;
+package edu.itba.class1.exchange.domain.exception;
 
 import java.util.Currency;
 

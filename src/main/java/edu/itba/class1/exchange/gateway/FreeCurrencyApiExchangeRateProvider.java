@@ -1,4 +1,4 @@
-package edu.itba.class1.exchange.provider;
+package edu.itba.class1.exchange.gateway;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -6,8 +6,9 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequest;
 
-import edu.itba.class1.exchange.exception.CurrencyExchangeApiException;
-import edu.itba.class1.exchange.exception.CurrencyExchangeConnectionException;
+import edu.itba.class1.exchange.domain.exception.CurrencyExchangeApiException;
+import edu.itba.class1.exchange.domain.exception.CurrencyExchangeConnectionException;
+import edu.itba.class1.exchange.domain.interfaces.ExchangeRateProvider;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
